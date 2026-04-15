@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nature Gallery</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Nunito', sans-serif;
+      background: #0a0a0a;
+    }
+
+    #mainCarousel {
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 0;
+    }
+    .carousel-inner,
+    .carousel-item {
+      width: 100%;
+      height: 100vh;
+    }
+    .slide-img {
+      width: 100%;
+      height: 100vh;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.04);
+      transition: transform 8s ease-out, filter 1s ease;
+      filter: brightness(1.0) saturate(1.1);
+    }
+    .carousel-item.active .slide-img {
+      transform: scale(1.0);
+    }
+
+    .slide-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.72) 0%,
+        rgba(0,0,0,0.18) 40%,
+        transparent 70%
+      );
+      pointer-events: none;
+    }
+
+    .slide-overlay-top {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.45) 0%,
+        transparent 35%
+      );
+      pointer-events: none;
+    }
+
+    .top-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.6rem 2.5rem;
+      pointer-events: none;
+    }
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.08em;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+      pointer-events: all;
+    }
+    .logo em { font-style: italic; opacity: 0.7; }
+    .slide-counter {
+      font-family: 'Cormorant Garamond', serif;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+    }
+    .slide-counter b { color: #fff; font-size: 1.3rem; }
+
+    .caption-box {
+      position: fixed;
+      bottom: 9rem;
+      left: 2.8rem;
+      z-index: 100;
+      max-width: 520px;
+    }
+    .caption-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.28);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 30px;
+      margin-bottom: 0.8rem;
+    }
+    .caption-tag::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #a8d8a8;
+      flex-shrink: 0;
+    }
+    .caption-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.4rem, 5vw, 4.2rem);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.05;
+      text-shadow: 0 4px 30px rgba(0,0,0,0.4);
+    }
+    .caption-rule {
+      width: 36px; height: 2px;
+      background: linear-gradient(90deg, #a8d8a8, #f0c86e);
+      border-radius: 2px;
+      margin: 0.9rem 0;
+    }
+    .caption-sub {
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.68);
+    }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+      width: auto;
+      top: 50%; transform: translateY(-50%);
+      bottom: auto;
+      opacity: 1;
+      z-index: 200;
+    }
+    .carousel-control-prev { left: 1.8rem; }
+    .carousel-control-next { right: 1.8rem; }
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon { display: none; }
+    .nav-btn {
+      width: 3.2rem; height: 3.2rem;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(14px);
+      transition: background 0.25s, transform 0.2s, box-shadow 0.25s;
+    }
+    .nav-btn:hover {
+      background: rgba(255,255,255,0.30);
+      transform: scale(1.12);
+      box-shadow: 0 0 24px rgba(255,255,255,0.2);
+    }
+    .nav-btn svg {
+      width: 16px; height: 16px;
+      stroke: #fff; fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .thumb-panel {
+      position: fixed;
+      bottom: 1.8rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      width: calc(100% - 5rem);
+      max-width: 860px;
+    }
+
+    .prog-row {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .prog-label {
+      font-size: 0.6rem; letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      white-space: nowrap;
+    }
+    .prog-track {
+      flex: 1; height: 2px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 2px; overflow: hidden;
+    }
+    .prog-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #a8d8a8, #f0c86e);
+      border-radius: 2px;
+      transition: width 0.55s cubic-bezier(0.4,0,0.2,1);
+      width: 33.33%;
+    }
+    .prog-count {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.1em;
+    }
+
+    .scroll-wrap {
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.4) rgba(255,255,255,0.08);
+    }
+    .scroll-wrap::-webkit-scrollbar { height: 4px; }
+    .scroll-wrap::-webkit-scrollbar-track { background: rgba(255,255,255,0.08); border-radius: 4px; }
+    .scroll-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.38); border-radius: 4px; }
+
+    .thumb-strip {
+      display: flex; gap: 0.9rem;
+      min-width: max-content;
+      padding: 2px 2px 2px;
+    }
+    .thumb-item {
+      width: 200px; height: 100px;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+      border: 2px solid rgba(255,255,255,0.18);
+      transition: border-color 0.3s, transform 0.25s, box-shadow 0.3s;
+    }
+    .thumb-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+      border-color: rgba(255,255,255,0.5);
+    }
+    .thumb-item.active {
+      border-color: #a8d8a8;
+      box-shadow: 0 0 0 1px #a8d8a8, 0 8px 28px rgba(168,216,168,0.35);
+    }
+    .thumb-item img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      filter: brightness(0.8);
+      transition: transform 0.4s, filter 0.3s;
+    }
+    .thumb-item:hover img { transform: scale(1.07); filter: brightness(1); }
+    .thumb-item.active img { filter: brightness(1.05) saturate(1.1); }
+
+    .thumb-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 0.4rem 0.6rem;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      font-size: 0.65rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: rgba(255,255,255,0.75);
+    }
+    .thumb-item.active .thumb-label { color: #fff; }
+
+    .thumb-dot {
+      position: absolute; top: 0.5rem; right: 0.55rem;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #a8d8a8;
+      opacity: 0; transition: opacity 0.3s;
+      box-shadow: 0 0 8px #a8d8a8;
+    }
+    .thumb-item.active .thumb-dot { opacity: 1; }
+
+    @media (max-width: 600px) {
+      .caption-title { font-size: 2rem; }
+      .caption-box { bottom: 10rem; left: 1.4rem; }
+      .thumb-item { width: 140px; height: 74px; }
+      .thumb-panel { width: calc(100% - 2rem); }
+      .top-bar { padding: 1.2rem 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+    <div class="carousel-inner">
+
+      <div class="carousel-item active">
+        <img src="P6_1.jpg">
+        <div class="slide-overlay-top"></div>
+        <div class="slide-overlay"></div>
+      </div>
+
+      <div class="carousel-item">
+        <img src="P6_3.jpg">
+        <div class="slide-overlay-top"></div>
+        <div class="slide-overlay"></div>
+      </div>
+
+      <div class="carousel-item">
+        <img src="232366.webp">
+        <div class="slide-overlay-top"></div>
+        <div class="slide-overlay"></div>
+      </div>
+
+    </div>
+
+    <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+      <div class="nav-btn"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+      <div class="nav-btn"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </button>
+  </div>
+
+  <div class="top-bar">
+    <div class="logo">Nature <em>Gallery</em></div>
+    <div class="slide-counter" id="slideCounter"><b>01</b> / 03</div>
+  </div>
+
+  <div class="caption-box" id="captionBox">
+    <span class="caption-tag" id="capTag">Alpine Meadow</span>
+    <div class="caption-title" id="capTitle">Sunset over<br>White Daffodils</div>
+    <div class="caption-rule"></div>
+    <div class="caption-sub" id="capSub">A hillside blanketed in blooms at golden hour</div>
+  </div>
+
+  <div class="thumb-panel">
+    <div class="prog-row">
+      <span class="prog-label">Explore</span>
+      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+      <span class="prog-count" id="progCount">1 / 3</span>
+    </div>
+    <div class="scroll-wrap">
+      <div class="thumb-strip">
+        <div class="thumb-item active" data-index="0">
+          <div class="thumb-dot"></div>
+          <img src="P6_1.jpg">
+          <div class="thumb-label">Alpine Meadow</div>
+        </div>
+        <div class="thumb-item" data-index="1">
+            <img src="232366.webp">
+            <div class="thumb-dot"></div>
+          <div class="thumb-label">Mirror Lake</div>
+        </div>
+        <div class="thumb-item" data-index="2">
+            <img src="P6_3.jpg">
+          <div class="thumb-dot"></div>
+          <div class="thumb-label">Mountain Fjord</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const slides = [
+      { tag: 'Alpine Meadow',  title: 'Sunset over<br>White Daffodils',     sub: 'A hillside blanketed in blooms at golden hour' },
+      { tag: 'Mirror Lake',    title: 'Still Waters,<br>Perfect Reflection', sub: 'Forest and sky mirrored in perfect symmetry'   },
+      { tag: 'Mountain Fjord', title: 'Norwegian<br>Highland Vista',         sub: 'Dramatic peaks carved by ancient glaciers'     },
+    ];
+
+    const carousel   = document.getElementById('mainCarousel');
+    const thumbs     = document.querySelectorAll('.thumb-item');
+    const fill       = document.getElementById('progFill');
+    const countEl    = document.getElementById('progCount');
+    const counterEl  = document.getElementById('slideCounter');
+    const capTag     = document.getElementById('capTag');
+    const capTitle   = document.getElementById('capTitle');
+    const capSub     = document.getElementById('capSub');
+    const total      = thumbs.length;
+    const bsCarousel = bootstrap.Carousel.getOrCreateInstance(carousel);
+
+    function updateUI(index) {
+      thumbs.forEach((t, i) => t.classList.toggle('active', i === index));
+      fill.style.width = ((index + 1) / total * 100) + '%';
+      countEl.textContent  = (index + 1) + ' / ' + total;
+      counterEl.innerHTML  = '<b>0' + (index + 1) + '</b> / 0' + total;
+      capTag.textContent   = slides[index].tag;
+      capTitle.innerHTML   = slides[index].title;
+      capSub.textContent   = slides[index].sub;
+    }
+
+    carousel.addEventListener('slid.bs.carousel', e => updateUI(e.to));
+    thumbs.forEach(t => t.addEventListener('click', () => bsCarousel.to(+t.dataset.index)));
+  </script>
+</body>
+</html>

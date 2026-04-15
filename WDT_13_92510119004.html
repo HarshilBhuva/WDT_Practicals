@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 50px;
+            max-width: 600px;
+            width: 100%;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="tel"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="tel"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .radio-group,
+        .checkbox-group {
+            display: flex;
+            gap: 25px;
+            margin-top: 10px;
+        }
+
+        .radio-item,
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="radio"],
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .radio-item label,
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        input.error,
+        select.error,
+        textarea.error {
+            border-color: #e74c3c;
+        }
+
+        input.success,
+        select.success,
+        textarea.success {
+            border-color: #27ae60;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button[type="submit"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+        button[type="reset"] {
+            background: #ecf0f1;
+            color: #333;
+        }
+
+        button[type="reset"]:hover {
+            background: #d5d8dc;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .password-strength {
+            margin-top: 8px;
+            height: 5px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .password-strength.show {
+            display: block;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s ease;
+            background: #e74c3c;
+        }
+
+        .strength-bar.weak {
+            width: 33%;
+            background: #e74c3c;
+        }
+
+        .strength-bar.medium {
+            width: 66%;
+            background: #f39c12;
+        }
+
+        .strength-bar.strong {
+            width: 100%;
+            background: #27ae60;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #666;
+            display: none;
+        }
+
+        .strength-text.show {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .radio-group,
+            .checkbox-group {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Student Registration</h1>
+        <p class="subtitle">Please fill in all the details below</p>
+
+        <div class="success-message" id="successMessage">
+            ✓ Registration successful! Your account has been created.
+        </div>
+
+        <form id="registrationForm" novalidate>
+            <div class="form-group">
+                <label for="enrollmentNumber">Enrollment Number <span style="color: #e74c3c;">*</span></label>
+                <input type="text" id="enrollmentNumber" name="enrollmentNumber" placeholder="e.g., 92510119004">
+                <div class="error-message" id="enrollmentNumberError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Full Name <span style="color: #e74c3c;">*</span></label>
+                <input type="text" id="name" name="name" placeholder="Enter your full name">
+                <div class="error-message" id="nameError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email ID <span style="color: #e74c3c;">*</span></label>
+                <input type="email" id="email" name="email" placeholder="your.email@example.com">
+                <div class="error-message" id="emailError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number <span style="color: #e74c3c;">*</span></label>
+                <input type="tel" id="phone" name="phone" placeholder="10-digit mobile number">
+                <div class="error-message" id="phoneError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password <span style="color: #e74c3c;">*</span></label>
+                <input type="password" id="password" name="password" placeholder="Minimum 8 characters">
+                <div class="password-strength" id="passwordStrength">
+                    <div class="strength-bar" id="strengthBar"></div>
+                </div>
+                <div class="strength-text" id="strengthText"></div>
+                <div class="error-message" id="passwordError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password <span style="color: #e74c3c;">*</span></label>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter your password">
+                <div class="error-message" id="confirmPasswordError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Address <span style="color: #e74c3c;">*</span></label>
+                <textarea id="address" name="address" placeholder="Enter your residential address"></textarea>
+                <div class="error-message" id="addressError"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Gender <span style="color: #e74c3c;">*</span></label>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="male" name="gender" value="Male">
+                        <label for="male">Male</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="female" name="gender" value="Female">
+                        <label for="female">Female</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="other" name="gender" value="Other">
+                        <label for="other">Other</label>
+                    </div>
+                </div>
+                <div class="error-message" id="genderError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="branch">Branch <span style="color: #e74c3c;">*</span></label>
+                <select id="branch" name="branch">
+                    <option value="">-- Select your branch --</option>
+                    <option value="CSE">Computer Science & Engineering</option>
+                    <option value="ECE">Electronics & Communication Engineering</option>
+                    <option value="ME">Mechanical Engineering</option>
+                    <option value="CE">Civil Engineering</option>
+                    <option value="EE">Electrical Engineering</option>
+                    <option value="IT">Information Technology</option>
+                </select>
+                <div class="error-message" id="branchError"></div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit">Register</button>
+                <button type="reset">Clear</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('registrationForm');
+        const successMessage = document.getElementById('successMessage');
+
+        document.getElementById('enrollmentNumber').addEventListener('blur', validateEnrollmentNumber);
+        document.getElementById('name').addEventListener('blur', validateName);
+        document.getElementById('email').addEventListener('blur', validateEmail);
+        document.getElementById('phone').addEventListener('blur', validatePhone);
+        document.getElementById('password').addEventListener('input', validatePassword);
+        document.getElementById('confirmPassword').addEventListener('blur', validateConfirmPassword);
+        document.getElementById('address').addEventListener('blur', validateAddress);
+
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId + 'Error');
+            const inputElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+            inputElement.classList.add('error');
+            inputElement.classList.remove('success');
+        }
+
+        function hideError(elementId) {
+            const errorElement = document.getElementById(elementId + 'Error');
+            const inputElement = document.getElementById(elementId);
+            errorElement.textContent = '';
+            errorElement.classList.remove('show');
+            inputElement.classList.remove('error');
+            inputElement.classList.add('success');
+        }
+
+        function validateEnrollmentNumber() {
+            const enrollmentNumber = document.getElementById('enrollmentNumber').value.trim();
+            if (enrollmentNumber === '') {
+                showError('enrollmentNumber', 'Enrollment number is required');
+                return false;
+            }
+            if (!/^\d{11}$/.test(enrollmentNumber)) {
+                showError('enrollmentNumber', 'Enrollment number must be 11 digits');
+                return false;
+            }
+            hideError('enrollmentNumber');
+            return true;
+        }
+
+        function validateName() {
+            const name = document.getElementById('name').value.trim();
+            if (name === '') {
+                showError('name', 'Full name is required');
+                return false;
+            }
+            if (!/^[a-zA-Z\s]{3,50}$/.test(name)) {
+                showError('name', 'Name must contain only letters (3-50 characters)');
+                return false;
+            }
+            hideError('name');
+            return true;
+        }
+
+        function validateEmail() {
+            const email = document.getElementById('email').value.trim();
+            if (email === '') {
+                showError('email', 'Email is required');
+                return false;
+            }
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('email', 'Please enter a valid email address');
+                return false;
+            }
+            hideError('email');
+            return true;
+        }
+
+        function validatePhone() {
+            const phone = document.getElementById('phone').value.trim();
+            if (phone === '') {
+                showError('phone', 'Phone number is required');
+                return false;
+            }
+            if (!/^\d{10}$/.test(phone)) {
+                showError('phone', 'Phone number must be 10 digits');
+                return false;
+            }
+            hideError('phone');
+            return true;
+        }
+
+        function validatePassword() {
+            const password = document.getElementById('password').value;
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthText = document.getElementById('strengthText');
+            const passwordStrength = document.getElementById('passwordStrength');
+
+            if (password === '') {
+                showError('password', 'Password is required');
+                passwordStrength.classList.remove('show');
+                strengthText.classList.remove('show');
+                return false;
+            }
+
+            if (password.length < 8) {
+                showError('password', 'Password must be at least 8 characters');
+                passwordStrength.classList.remove('show');
+                strengthText.classList.remove('show');
+                return false;
+            }
+
+            let strength = 0;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[!@#$%^&*]/.test(password)) strength++;
+
+            passwordStrength.classList.add('show');
+            strengthText.classList.add('show');
+
+            strengthBar.classList.remove('weak', 'medium', 'strong');
+            if (strength <= 1) {
+                strengthBar.classList.add('weak');
+                strengthText.textContent = 'Weak password';
+                strengthText.style.color = '#e74c3c';
+            } else if (strength <= 2) {
+                strengthBar.classList.add('medium');
+                strengthText.textContent = 'Medium password';
+                strengthText.style.color = '#f39c12';
+            } else {
+                strengthBar.classList.add('strong');
+                strengthText.textContent = 'Strong password';
+                strengthText.style.color = '#27ae60';
+            }
+
+            hideError('password');
+            return strength >= 2;
+        }
+
+        function validateConfirmPassword() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (confirmPassword === '') {
+                showError('confirmPassword', 'Please confirm your password');
+                return false;
+            }
+            if (password !== confirmPassword) {
+                showError('confirmPassword', 'Passwords do not match');
+                return false;
+            }
+            hideError('confirmPassword');
+            return true;
+        }
+
+        function validateAddress() {
+            const address = document.getElementById('address').value.trim();
+            if (address === '') {
+                showError('address', 'Address is required');
+                return false;
+            }
+            if (address.length < 10 || address.length > 200) {
+                showError('address', 'Address must be between 10-200 characters');
+                return false;
+            }
+            hideError('address');
+            return true;
+        }
+
+        function validateGender() {
+            const genderSelected = document.querySelector('input[name="gender"]:checked');
+            if (!genderSelected) {
+                const errorElement = document.getElementById('genderError');
+                errorElement.textContent = 'Please select a gender';
+                errorElement.classList.add('show');
+                return false;
+            }
+            const errorElement = document.getElementById('genderError');
+            errorElement.textContent = '';
+            errorElement.classList.remove('show');
+            return true;
+        }
+
+        function validateBranch() {
+            const branch = document.getElementById('branch').value;
+            if (branch === '') {
+                showError('branch', 'Please select a branch');
+                return false;
+            }
+            hideError('branch');
+            return true;
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            successMessage.classList.remove('show');
+
+            const isEnrollmentValid = validateEnrollmentNumber();
+            const isNameValid = validateName();
+            const isEmailValid = validateEmail();
+            const isPhoneValid = validatePhone();
+            const isPasswordValid = validatePassword();
+            const isConfirmPasswordValid = validateConfirmPassword();
+            const isAddressValid = validateAddress();
+            const isGenderValid = validateGender();
+            const isBranchValid = validateBranch();
+
+            if (isEnrollmentValid && isNameValid && isEmailValid && isPhoneValid && 
+                isPasswordValid && isConfirmPasswordValid && isAddressValid && 
+                isGenderValid && isBranchValid) {
+                
+                successMessage.classList.add('show');
+                
+                console.log({
+                    enrollmentNumber: document.getElementById('enrollmentNumber').value,
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    address: document.getElementById('address').value,
+                    gender: document.querySelector('input[name="gender"]:checked').value,
+                    branch: document.getElementById('branch').value
+                });
+
+                setTimeout(() => {
+                    form.reset();
+                    successMessage.classList.remove('show');
+                    document.querySelectorAll('input, select, textarea').forEach(field => {
+                        field.classList.remove('success', 'error');
+                    });
+                    document.querySelectorAll('.error-message').forEach(msg => {
+                        msg.classList.remove('show');
+                    });
+                }, 2000);
+            }
+        });
+
+        document.querySelector('button[type="reset"]').addEventListener('click', function() {
+            successMessage.classList.remove('show');
+            document.querySelectorAll('input, select, textarea').forEach(field => {
+                field.classList.remove('success', 'error');
+            });
+            document.querySelectorAll('.error-message').forEach(msg => {
+                msg.classList.remove('show');
+            });
+            document.getElementById('passwordStrength').classList.remove('show');
+            document.getElementById('strengthText').classList.remove('show');
+        });
+    </script>
+</body>
+</html>

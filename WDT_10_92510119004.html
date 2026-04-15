@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Listing</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <style>
+    .product-card {
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    .product-img {
+      height: 200px;
+      object-fit: cover;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+    }
+    .badge-discount {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+    .wishlist-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: white;
+      border: none;
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .wishlist-btn .bi-heart-fill { color: red; }
+    .stars { color: #f5a623; font-size: 0.85rem; }
+    .price-original { text-decoration: line-through; color: #999; font-size: 0.85rem; }
+    .cart-count {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      font-size: 0.7rem;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 4px;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Products</h2>
+    <button class="btn btn-outline-dark position-relative" id="cartBtn">
+      <i class="bi bi-cart3"></i> Cart
+      <span class="badge bg-danger rounded-pill cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+
+  <div class="mb-3 d-flex gap-2 flex-wrap">
+    <button class="btn btn-dark btn-sm filter-btn active" data-filter="all">All</button>
+    <button class="btn btn-outline-secondary btn-sm filter-btn" data-filter="electronics">Electronics</button>
+    <button class="btn btn-outline-secondary btn-sm filter-btn" data-filter="fashion">Fashion</button>
+    <button class="btn btn-outline-secondary btn-sm filter-btn" data-filter="home">Home</button>
+  </div>
+
+  <div class="row g-4" id="productGrid"></div>
+
+</div>
+
+<div class="modal fade" id="cartModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Your Cart</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="cartItems">
+        <p class="text-muted">Your cart is empty.</p>
+      </div>
+      <div class="modal-footer d-flex justify-content-between">
+        <strong>Total: <span id="cartTotal">₹0</span></strong>
+        <button class="btn btn-primary">Checkout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const products = [
+    { id: 1, name: "Wireless Headphones", category: "electronics", emoji: "🎧", price: 2999, original: 4999, rating: 4, reviews: 128, discount: 40 },
+    { id: 2, name: "Running Sneakers",   category: "fashion",     emoji: "👟", price: 1799, original: 2999, rating: 4, reviews: 85,  discount: 40 },
+    { id: 3, name: "Smart Watch",        category: "electronics", emoji: "⌚", price: 5499, original: 7999, rating: 5, reviews: 210, discount: 31 },
+    { id: 4, name: "Table Lamp",         category: "home",        emoji: "🪔", price: 899,  original: 1299, rating: 3, reviews: 42,  discount: 31 },
+    { id: 5, name: "Backpack",           category: "fashion",     emoji: "🎒", price: 1299, original: 1999, rating: 4, reviews: 67,  discount: 35 },
+    { id: 6, name: "Bluetooth Speaker",  category: "electronics", emoji: "🔊", price: 1599, original: 2499, rating: 4, reviews: 154, discount: 36 },
+  ];
+
+  const cart = {};
+  const wishlist = new Set();
+
+  function stars(n) {
+    return Array.from({ length: 5 }, (_, i) =>
+      `<i class="bi ${i < n ? 'bi-star-fill' : 'bi-star'} stars"></i>`
+    ).join('');
+  }
+
+  function renderCard(p) {
+    return `
+      <div class="col-sm-6 col-lg-4 product-col" data-category="${p.category}">
+        <div class="card product-card h-100 border-0 shadow-sm">
+          <div class="position-relative">
+            <div class="product-img rounded-top">${p.emoji}</div>
+            <span class="badge bg-danger badge-discount">${p.discount}% OFF</span>
+            <button class="wishlist-btn" onclick="toggleWish(${p.id}, this)">
+              <i class="bi bi-heart text-danger" id="wish-${p.id}"></i>
+            </button>
+          </div>
+          <div class="card-body d-flex flex-column">
+            <small class="text-muted text-capitalize">${p.category}</small>
+            <h6 class="card-title mb-1">${p.name}</h6>
+            <div class="mb-1">${stars(p.rating)} <small class="text-muted">(${p.reviews})</small></div>
+            <div class="mb-3">
+              <span class="fw-bold fs-5">₹${p.price.toLocaleString()}</span>
+              <span class="price-original ms-2">₹${p.original.toLocaleString()}</span>
+            </div>
+            <button class="btn btn-primary btn-sm mt-auto" onclick="addToCart(${p.id})">
+              <i class="bi bi-cart-plus me-1"></i> Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderAll(filter) {
+    const grid = document.getElementById('productGrid');
+    const list = filter === 'all' ? products : products.filter(p => p.category === filter);
+    grid.innerHTML = list.map(renderCard).join('');
+  }
+
+  function toggleWish(id, btn) {
+    const icon = document.getElementById('wish-' + id);
+    if (wishlist.has(id)) {
+      wishlist.delete(id);
+      icon.className = 'bi bi-heart text-danger';
+    } else {
+      wishlist.add(id);
+      icon.className = 'bi bi-heart-fill text-danger';
+    }
+  }
+
+  function addToCart(id) {
+    cart[id] = (cart[id] || 0) + 1;
+    const total = Object.values(cart).reduce((a, b) => a + b, 0);
+    document.getElementById('cartCount').textContent = total;
+  }
+
+  document.getElementById('cartBtn').addEventListener('click', () => {
+    const keys = Object.keys(cart);
+    const body = document.getElementById('cartItems');
+    const totalEl = document.getElementById('cartTotal');
+
+    if (keys.length === 0) {
+      body.innerHTML = '<p class="text-muted">Your cart is empty.</p>';
+      totalEl.textContent = '₹0';
+    } else {
+      let sum = 0;
+      body.innerHTML = keys.map(id => {
+        const p = products.find(x => x.id == id);
+        const subtotal = p.price * cart[id];
+        sum += subtotal;
+        return `<div class="d-flex justify-content-between mb-2">
+          <span>${p.emoji} ${p.name} ×${cart[id]}</span>
+          <span>₹${subtotal.toLocaleString()}</span>
+        </div>`;
+      }).join('');
+      totalEl.textContent = '₹' + sum.toLocaleString();
+    }
+
+    new bootstrap.Modal(document.getElementById('cartModal')).show();
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.remove('btn-dark', 'active');
+        b.classList.add('btn-outline-secondary');
+      });
+      this.classList.add('btn-dark', 'active');
+      this.classList.remove('btn-outline-secondary');
+      renderAll(this.dataset.filter);
+    });
+  });
+
+  renderAll('all');
+</script>
+
+</body>
+</html>

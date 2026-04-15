@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Student Registration Form</title>
+</head>
+
+<body bgcolor="cyan" align="center">
+
+    <h2>Student Registration Form</h2>
+
+    <form>
+    <div style="display: flex; justify-content: center; gap: 50px; text-align: left;">
+     <div>
+        <h3>Basic Information</h3>
+
+        First Name:<br>
+        <input type="text" required name="firstname"><br><br>
+
+        Last Name:<br>
+        <input type="text" required name="lastname"><br><br>
+
+        Email ID:<br>
+        <input type="email" required name="email"><br><br>
+
+        Gender:<br>
+        <input type="radio" name="gender" value="Male"> Male
+        <input type="radio" name="gender" value="Female"> Female
+        <input type="radio" name="gender" value="Other"> Other<br><br>
+
+        Date of Birth:<br>
+        <input type="date" required name="dob"><br><br>
+
+        Mobile Number:<br>
+        <input type="text" required name="mobile"><br><br>
+
+<h3>Academic Details</h3>
+
+        Course:<br>
+        <select required name="course">
+            <option>BBA</option>
+            <option>BCom</option>
+            <option>BTech</option>
+            <option>MTech</option>
+        </select><br><br>
+
+        Branch:<br>
+        <input type="text" required name="branch"><br><br>
+
+        Semester:<br>
+        <input type="number" required name="semester"><br><br>
+    </div>
+    <div>
+        
+    <h3>Parent Details</h3>
+
+        Father Name:<br>
+        <input type="text" required name="father_name"><br><br>
+
+        Parent Contact:<br>
+        <input type="text" required name="parent_contact"><br><br>
+        <input type="submit" value="Register">
+        <input type="reset" value="Reset">
+    </div>
+    </div>
+    </form>
+</body>
+</html>
